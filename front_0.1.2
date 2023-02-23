@@ -1,0 +1,72 @@
+#Front End
+import customtkinter
+
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("dark-blue")
+
+# Dicionário de usuários válidos
+USUARIOS_VALIDOS = {"15789": "1234"}
+
+# Função que é chamada quando o botão "Esqueceu a senha" é clicado
+def clique_esqueceu_senha():
+    print("Esqueceu a senha")
+
+# Função que é chamada quando o login é bem-sucedido
+def login_bem_sucedido():
+    # Fechar a janela de login
+    janela.destroy()
+
+    # Abrir a nova janela
+    janela_direcao = customtkinter.CTk()
+    janela_direcao.geometry("500x300")
+
+    # Adicionar os widgets na nova janela
+    texto = customtkinter.CTkLabel(janela_direcao, text="Alunos - Curso de Habilitação")
+    texto.pack(padx=10, pady=10)
+
+    janela_direcao.mainloop()
+
+def validar_login(matricula, senha):
+    # Verifica se a matrícula está no dicionário de usuários válidos e se a senha corresponde
+    if matricula in USUARIOS_VALIDOS and USUARIOS_VALIDOS[matricula] == senha:
+        return True
+    else:
+        return False
+
+def clique(event=None):
+    if validar_login(matricula.get(), senha.get()):
+        print("Login bem-sucedido")
+        login_bem_sucedido()
+    else:
+        print("Matrícula ou senha incorreta.")
+
+janela = customtkinter.CTk()
+janela.geometry("500x300")
+
+# Adiciona os widgets na janela principal
+texto = customtkinter.CTkLabel(janela, text="AutoEscola Yahoo")
+texto.pack(padx=10, pady=10)
+
+matricula = customtkinter.CTkEntry(janela, placeholder_text="Sua Matricula")
+matricula.pack(padx=10, pady=10)
+matricula.focus()
+
+senha = customtkinter.CTkEntry(janela, placeholder_text="Sua Senha", show="*")
+senha.pack(padx=10, pady=10)
+
+checkbox = customtkinter.CTkCheckBox(janela, text="Lembrar Login")
+checkbox.pack(padx=10, pady=10)
+
+botao = customtkinter.CTkButton(janela, text="Login", command=clique)
+botao.pack(padx=10, pady=10)
+
+botao_esqueceu_senha = customtkinter.CTkButton(janela, text="Esqueceu a senha", command=clique_esqueceu_senha)
+botao_esqueceu_senha.pack(padx=10, pady=10)
+
+# Habilitar a tecla TAB para mudar o foco do campo "matricula" para o campo "senha"
+matricula.bind("<Tab>", lambda e: senha.focus_set())
+
+# Habilitar a tecla Enter para acionar o botão "Login"
+janela.bind("<Return>", clique)
+
+janela.mainloop()
