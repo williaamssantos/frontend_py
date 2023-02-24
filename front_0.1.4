@@ -1,0 +1,103 @@
+import customtkinter
+
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("dark-blue")
+
+USUARIOS_VALIDOS = {"15789": "1234"}
+TENTATIVAS_MAXIMAS = 3
+tentativas_senha = 0
+tentativas_login_vazio = 0
+
+def mostrar_senha():
+    if senha.cget("show") == "*":
+        senha.configure(show="")
+        botao_mostrar.configure(text="Esconder senha")
+    else:
+        senha.configure(show="*")
+        botao_mostrar.configure(text="Mostrar senha")
+
+def clique_esqueceu_senha():
+    print("Esqueceu a senha")
+
+def login_bem_sucedido():
+    janela.destroy()
+
+    janela_direcao = customtkinter.CTk()
+    janela_direcao.geometry("500x300")
+
+    texto = customtkinter.CTkLabel(janela_direcao, text="Alunos - Curso de Habilitação")
+    texto.pack(padx=10, pady=10)
+
+    janela_direcao.mainloop()
+
+def validar_login(matricula, senha):
+    if matricula in USUARIOS_VALIDOS and USUARIOS_VALIDOS[matricula] == senha:
+        return True
+    else:
+        return False
+
+def tentar_login():
+    global tentativas_login_vazio
+
+    if not matricula.get() or not senha.get():
+        tentativas_login_vazio += 1
+        if tentativas_login_vazio == TENTATIVAS_MAXIMAS:
+            janela.destroy()
+            print("Acesso bloqueado: tentativas de login em branco excedidas.")
+    else:
+        tentativas_login_vazio = 0
+        if validar_login(matricula.get(), senha.get()):
+            print("Login bem-sucedido")
+            login_bem_sucedido()
+        else:
+            tentar_senha()
+
+def tentar_senha():
+    global tentativas_senha
+
+    tentativas_senha += 1
+    if tentativas_senha == TENTATIVAS_MAXIMAS:
+        janela.destroy()
+        print("Acesso bloqueado: tentativas de senha incorreta excedidas.")
+    else:
+        print("Matrícula ou senha incorreta.")
+
+def clique(event=None):
+    tentar_login()
+
+def bind_troca_foco(event=None):
+    if event.widget == matricula:
+        senha.focus_set()
+    elif event.widget == senha:
+        botao.focus_set()
+
+janela = customtkinter.CTk()
+janela.geometry("500x350")
+
+texto = customtkinter.CTkLabel(janela, text="AutoEscola Yahoo")
+texto.pack(padx=10, pady=10)
+
+matricula = customtkinter.CTkEntry(janela, placeholder_text="Sua Matricula")
+matricula.pack(padx=10, pady=10)
+matricula.focus()
+
+senha = customtkinter.CTkEntry(janela, placeholder_text="Sua Senha", show="*")
+senha.pack(padx=10, pady=10)
+
+checkbox = customtkinter.CTkCheckBox(janela, text="Lembrar Login")
+checkbox.pack(padx=10, pady=10)
+
+botao_mostrar = customtkinter.CTkButton(janela, text="Mostrar senha", command=mostrar_senha)
+botao_mostrar.pack(padx=10, pady=10)
+
+botao = customtkinter.CTkButton(janela, text="Login", command=tentar_login)
+botao.pack(padx=10, pady=10)
+
+botao_esqueceu_senha = customtkinter.CTkButton(janela, text="Esqueceu a senha", command=clique_esqueceu_senha)
+botao_esqueceu_senha.pack(padx=10, pady=10)
+
+matricula.bind("<Tab>", lambda e: senha.focus_set())
+
+janela.bind("<Return>", clique)
+
+janela.mainloop()
