@@ -1,0 +1,211 @@
+import pandas as pd
+
+#inss
+def calculo_inss(salario_trabalhado):
+    if salario_trabalhado <= 1302.00:
+        inss = salario_trabalhado * 0.075
+    elif salario_trabalhado <= 2571.29:
+        inss = (1302.00 * 0.075) + ((salario_trabalhado - 1302.01) * 0.09)
+    elif salario_trabalhado <= 3856.94:
+        inss = (1302.00 * 0.075) + ((2571.29 - 1302.01) * 0.09) + ((salario_trabalhado - 2571.30) * 0.12)
+    elif salario_trabalhado <= 7507.49:
+        inss = (1302.00 * 0.075) + ((2571.29 - 1302.01) * 0.09) + ((3856.94 - 2571.30) * 0.12) + ((salario_trabalhado - 3856.95) * 0.14)
+    else:
+        inss = (1302.00 * 0.075) + ((2571.29 - 1302.01) * 0.09) + ((3856.94 - 2571.30) * 0.12) + ((7507.49 - 3856.95) * 0.14)
+    
+    return inss
+
+#def horas_extras()
+
+
+
+#salario familia
+def calculo_salario_familia(salario_trabalhado, dependentes):
+    base_familia = 0
+    
+    if salario_trabalhado <= 1754.18:
+        if dependentes <= 5:
+            base_familia = 59.82 * dependentes
+        else:
+            base_familia = 56.47 * dependentes
+
+    return base_familia
+
+#irrf
+def calculo_irrf(salario_trabalhado, dependentes):
+    inss = calculo_inss(salario_trabalhado)
+    base_irrf = (salario_trabalhado - inss - (dependentes * 189.59))
+
+    if base_irrf <= 1903.98:
+        irrf = 0
+    elif base_irrf <= 2826.65:
+        irrf = ((base_irrf * 0.075) - 142.80)
+    elif base_irrf <= 3751.05:
+        irrf = ((base_irrf * 0.15) - 354.80)
+    elif base_irrf <= 4664.68:
+        irrf = ((base_irrf * 0.225) - 636.13)
+    else:
+        irrf = ((base_irrf * 0.275) - 869.36)
+
+    return irrf
+
+# --------------------------------------------------------------------------------------------- #
+
+#armazenar os registros
+registros = []
+
+#loop para registros
+for _ in range(5):
+    funcionario = str(input("Digite o nome do funcionário: "))
+    salario_bruto = float(input("Digite o salário bruto: "))
+    dias_totais = 31 
+    dias_trabalhado = 28
+    dependentes = int(input("Digite a quantidade de dependentes: "))
+    utiliza_vt = str(input("Utiliza Vale Transporte? (s/n): "))
+    pensao_alimenticia = "n"
+    inss_patronal = "s"
+    sistema_s = "s"
+    rat = "s"
+
+    #calculos
+    salario_trabalhado = round((salario_bruto / dias_totais) * dias_trabalhado, 2)
+
+    dependentes_irrf = round((dependentes * 189.59), 2)
+
+    #valor pago por filho
+    valor_salario_familia = calculo_salario_familia(salario_trabalhado, dependentes)
+
+    salario_familia_por_filho = round(valor_salario_familia / dependentes, 2) if valor_salario_familia != 0 else 0.00
+
+#    print("Valor Pago por Filho: ", salario_familia_por_filho)
+#    print("Salario Familia: ", valor_salario_familia)
+
+    vt = round(salario_trabalhado * 0.06, 2) if utiliza_vt.lower() == "s" else 0.00
+    
+    base_inss = round(salario_trabalhado, 2)
+
+    inss = round(calculo_inss(salario_trabalhado) ,2) 
+
+    base_irrf = round(salario_trabalhado - inss - (dependentes * 189.59), 2)
+
+    irrf = round(calculo_irrf(salario_trabalhado, dependentes), 2)
+
+    fgts = round(salario_trabalhado * 0.08, 2)
+
+    valor_pensao = round(((salario_trabalhado * 0.20) * dependentes), 2) if pensao_alimenticia.lower() == "s" else 0.00
+
+    valor_cpp_patronal = round((salario_trabalhado * 0.20), 2) if inss_patronal.lower() == "s" else 0.00
+
+    valor_sistema_s = round((salario_trabalhado * 0.20), 2) if sistema_s.lower() == "s" else 0.00
+
+    valor_rat = round((salario_trabalhado * 0.20), 2) if rat.lower() == "s" else 0.00
+
+    outras_despesas_prev = round((valor_cpp_patronal + valor_sistema_s + valor_rat),2)
+
+    salario_liquido = round(((salario_trabalhado + valor_salario_familia) - (inss + irrf + vt)), 2)
+
+    #valor pago por filho
+    if dependentes != 0:
+        valid_sl_familia = valor_salario_familia / dependentes
+
+        if valid_sl_familia == 0:
+            valid_sl_familia  = 0
+    else:
+        valid_sl_familia = 0
+
+#valores prints
+#    print("----------------------------------------------------------")
+#    print("Salario Bruto (R$): ", salario_bruto)
+#    print("Salario Trabalhado (R$): ", salario_trabalhado)
+#    print("Base Salario Familia (R$): ", salario_trabalhado)
+#    print("Salario Familia (R$): ", valor_salario_familia)
+#    print("Valor Pago por filho (R$): ", salario_familia_por_filho)
+#    print("Base INSS (R$): ", salario_trabalhado)
+#    print("Dedução INSS (R$): ", inss)
+#    print("Base IRRF (R$): ", base_irrf)
+#    print("Dedução IRRF (R$): ", irrf)
+#    print("Valor Pensao (R$): ", valor_pensao)
+#    print("Dependentes IRRF (R$): ", dependentes_irrf)
+#    print("Vale Transporte (R$): ", vt)
+#    print("Salario Liquido (R$): ", salario_liquido)
+#    print("----------------------------------------------------------")
+
+print("----------------------------------------------------------")
+print("Salario Bruto (R$): ", salario_bruto)
+print("Salario Trabalhado (R$): ", salario_trabalhado)
+print("Base Salario Familia (R$): ", salario_trabalhado)
+print("Salario Familia (R$): ", valor_salario_familia)
+print("Valor Pago por filho (R$): ", salario_familia_por_filho)
+print("Base INSS (R$): ", salario_trabalhado)
+print("Dedução INSS (R$): ", inss)
+print("Base IRRF (R$): ", base_irrf)
+print("Dedução IRRF (R$): ", irrf)
+print("Valor Pensao (R$): ", valor_pensao)
+print("Dependentes IRRF (R$): ", dependentes_irrf)
+print("Vale Transporte (R$): ", vt)
+print("Salario Liquido (R$): ", salario_liquido)
+print("Outras despesas previdenciarias (R$): ", outras_despesas_prev)
+print("----------------------------------------------------------")
+
+#    registro = {
+#        "Funcionário": funcionario,
+#        "Salário Bruto": salario_bruto,
+#        "Salário Trabalhado": salario_trabalhado,
+#        "Base INSS": salario_trabalhado,
+#        "Dedução INSS": inss,
+#        "Base IRRF": base_irrf,
+#        "Dedução IRRF": irrf,
+#        "Dependentes IRRF": dependentes_irrf,
+#        "Valor Pensao": valor_pensao,
+#        "Vale Transporte": vt,
+#        "Salário Líquido": salario_liquido,
+#        "FGTS": fgts
+#    }
+#    registros.append(registro)
+
+# Criar DataFrame a partir dos registros
+#df = pd.DataFrame(registros)
+
+# Substituir pontos por vírgulas em uma coluna específica
+#df['coluna'] = df['coluna'].str.replace('.', ',')
+
+#df['Funcionário'] = df['Funcionário'].str.replace('.', ',')
+#df['Salário Trabalhado'] = df['Salário Trabalhado'].str.replace('.', ',')
+#df['Base INSS'] = df['Base INSS'].str.replace('.', ',')
+#df['Dedução INSS'] = df['Dedução INSS'].str.replace('.', ',')
+#df['Base IRRF'] = df['Base IRRF'].str.replace('.', ',')
+#df['Dedução IRRF'] = df['Dedução IRRF'].str.replace('.', ',')
+#df['Dependentes IRRF'] = df['Dependentes IRRF'].str.replace('.', ',')
+#df['Valor Pensao'] = df['Valor Pensao'].str.replace('.', ',')
+#df['Vale Transporte'] = df['Vale Transporte'].str.replace('.', ',')
+#df['Salário Líquido'] = df['Salário Líquido'].str.replace('.', ',')
+# df['FGTS'] = df['FGTS'].str.replace('.', ',')
+
+    registro = {
+        "Funcionário": funcionario,
+        "Salário Bruto": salario_bruto,
+        "Salário Trabalhado": salario_trabalhado,
+        "Base INSS": salario_trabalhado,
+        "Dedução INSS": inss,
+        "Base IRRF": base_irrf,
+        "Dedução IRRF": irrf,
+        "Dependentes IRRF": dependentes_irrf,
+        "Valor Pensao": valor_pensao,
+        "Vale Transporte": vt,
+        "Salário Líquido": salario_liquido,
+      "FGTS": fgts
+    }
+    registros.append(registro)
+
+# Criar DataFrame a partir dos registros
+df = pd.DataFrame(registros)
+
+#percorrer e substituir ponto por vírgula
+for coluna in df.columns:
+    df[coluna] = df[coluna].astype(str).str.replace('.', ',')
+
+
+#Salvar DataFrame em um arquivo CSV
+df.to_csv("registros_funcionarios2.csv", index=False)
+
+print("Arquivo Gerado com Sucesso!")
